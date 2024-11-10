@@ -1,0 +1,107 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HDB Resale Price Line Race</title>
+    <script type="module">
+        import * as echarts from 'https://cdn.jsdelivr.net/npm/echarts@5.4.1/dist/echarts.esm.min.js';
+
+        // Function to parse CSV data
+        async function fetchDataFromCSV(url) {
+            const response = await fetch(url);
+            const data = await response.text();
+            const rows = data.trim().split('\n').map(row => row.split(','));
+
+            // Extract headers for years
+            const headers = rows[0].slice(1);
+            const dataTransformed = [];
+
+            rows.slice(1).forEach((row, rowIndex) => {
+                const area = row[0];
+                if (!area) {
+                    console.warn(`Row ${rowIndex + 2} has no area name.`);
+                    return;
+                }
+
+                row.slice(1).forEach((value, index) => {
+                    const date = headers[index];
+                    if (date) {
+                        dataTransformed.push({
+                            Area: area.trim(),
+                            Date: date.trim(),
+                            ResalePrice: parseFloat(value) || 0
+                        });
+                    } else {
+                        console.warn(`Date header missing at index ${index + 1} for area ${area}.`);
+                    }
+                });
+            });
+            return dataTransformed;
+        }
+
+        // Load and visualize data
+        fetchDataFromCSV('HDB Resale Price since 2017.csv').then(data => {
+            const areas = Array.from(new Set(data.map(item => item.Area)));
+            const datasetWithFilters = [];
+            const seriesList = [];
+
+            // Set up datasets and series for each area
+            areas.forEach(area => {
+                let datasetId = 'dataset_' + area;
+                datasetWithFilters.push({
+                    id: datasetId,
+                    fromDatasetId: 'dataset_raw',
+                    transform: {
+                        type: 'filter',
+                        config: { and: [{ dimension: 'Area', '=': area }] }
+                    }
+                });
+                seriesList.push({
+                    type: 'line',
+                    datasetId: datasetId,
+                    showSymbol: false,
+                    name: area, // Use area name as the series name
+                    endLabel: {
+                        show: true,
+                        formatter: function () {
+                            return area; // Only show the area name as the label
+                        }
+                    },
+                    labelLayout: { moveOverlap: 'shiftY' },
+                    emphasis: { focus: 'series' },
+                    encode: { 
+                        x: 'Date',
+                        y: 'ResalePrice',
+                        tooltip: ['Date', 'ResalePrice'] 
+                    }
+                });
+            });
+
+            // ECharts option configuration
+            const option = {
+                animationDuration: 10000,
+                dataset: [{ id: 'dataset_raw', source: data }, ...datasetWithFilters],
+                title: { text: 'HDB Resale Prices by Area (2017-2024)' },
+                tooltip: { order: 'valueDesc', trigger: 'axis' },
+                xAxis: { type: 'category', nameLocation: 'middle' },
+                yAxis: { name: 'Price/ floor area per remaining year (SGD)', min: 40, max: 150, interval: 10 },
+                grid: { right: 140 },
+                series: seriesList
+            };
+
+            // Initialize the chart
+            const chartDom = document.getElementById('main');
+            const myChart = echarts.init(chartDom);
+            myChart.setOption(option);
+        })
+        .catch(error => console.error('Error loading CSV data:', error));
+    </script>
+</head>
+<body>
+    <h1>Singapore 4-Room HDB Resale Prices by Town Area: A Yearly Comparison (2017-2024) </h1>
+    <p>The aim of this study is to examine the changes in 4-room HDB resale prices since 2017. Resale prices are affected by factors such as location, remaining lease, and floor area. Therefore, to focus specifically on location, the study compares the "resale price per floor area relative to the remaining years on the lease."    </p>
+    <div id="main" style="width: 100%; height: 600px;"></div>
+</body>
+</html>
