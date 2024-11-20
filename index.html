@@ -1,55 +1,147 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HCDIV Assignment 3 </title>
-  <style>
-    /* Reset default styles */
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    /* Body and main container */
-    body {
-      font-family: 'Arial', sans-serif;
-      background-color: #a9c0ee;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      margin: 0;
-      overflow-x: hidden;
-    }
-
-    #content {
-      width: 90%;
-      max-width: 1000px;
-      padding: 40px;
-      background-color: #aec1ed;
-      border-radius: 12px;
-      box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.1);
-      text-align: center;
-      overflow: hidden;
-      position: relative;
-      animation: slideIn 0.6s ease-out;
-    }
-
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HCDIV Assignment 3 </title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- 引入Chart.js -->
+    <style>
+        body {
+            background-color: blanchedalmond;
+            display: flexbox;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 200;
+        }
+        #content {text-align: center;}
+        .chart-container {
+            width: 80%;
+            height: 80%;
+        }
+    </style>
 </head>
 <body>
+    <div id="content">
+        <h2>Changes in 2-room rents in 4 towns this year</h2>  
+        <h4>Created by Chen Hongmei</h4>
+        <p>To rent a 2-Room house in Singapore, the chart below shows the rental price changes in 4 towns from January to October this year.</p>
+    </div>
+    <div class="chart-container">
+        <canvas id="priceChart"></canvas>
+    </div>
+    <script>
+        const ctx = document.getElementById('priceChart').getContext('2d');
 
-  <div id="content">
-    <h1>HCDIV Assignment 3 HDB's Resale flat prices</h1>
-    <h5>Chen hongmei</h5>
-    <h3>The assignment is being upgraded, please stay tuned</h3>
-    <div id="cases-container"></div>
-  </div>
+        // 月份数据
+        const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'];
 
-  
+        // 各地区的月租金数据
+        const data = {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'QUEENSTOWN',
+                    data: [2900, 1000, 2100, 1200, 1800, 2750, 2700, 2750, 2400, 2200],
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                },
+                {
+                    label: 'JURONG WEST',
+                    data: [2200, 1400, 2700, 1600, 1200, 2400, 2700, 2200, 2500, 1800],
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                },
+                {
+                    label: 'BEDOK',
+                    data: [1700, 1850, 2100, 2200, 1700, 1850, 2000, 2400, 2300, 2600],
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                },
+                {
+                    label: 'WOODLANDS',
+                    data: [1300, 2480, 1300, 2200, 1200, 1900, 2100, 2300, 2200, 2400],
+                    borderColor: 'rgba(153, 102, 255, 1)',
+                    backgroundColor: 'rgba(153, 102, 255, 0.5)',
+                }
+            ]
+        };
 
+        const config = {
+            type: 'line',
+            data: data,
+            options: {
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    datalabels: {
+                        formatter: (value, ctx) => {
+                            let dataset = ctx.dataset;
+                            let index = dataset.data.indexOf(value);
+                            return dataset.label + ': ' + value;
+                        },
+                        color: '#000',
+                        font: {
+                            weight: 'bold'
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Monthly Rent (SGD)'
+                        },
+                        beginAtZero: false, // 不从零开始，根据数据范围自动调整
+                        suggestedMin: Math.min(...data.datasets.map(ds => Math.min(...ds.data))) - 500, // 设置y轴的最小值
+                        suggestedMax: Math.max(...data.datasets.map(ds => Math.max(...ds.data))) + 500, // 设置y轴的最大值
+                        grid: {
+                            drawBorder: false,
+                            drawTicks: false,
+                            borderDash: [3, 3],
+                            color: 'rgba(0, 0, 0, 0.2)'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Month'
+                        },
+                        grid: {
+                            drawBorder: false,
+                            drawTicks: false,
+                            borderDash: [3, 3],
+                            color: 'rgba(0, 0, 0, 0.2)'
+                        }
+                    }
+                },
+                animation: {
+                    duration: 2000,
+                    easing: 'easeOutBounce'
+                },
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                hover: {
+                    mode: 'index',
+                    intersect: true
+                },
+                tooltips: {
+                    intersect: true,
+                    callbacks: {
+                        label: function(context) {
+                            const { label, datasetIndex, parsed } = context;
+                            const value = parsed[datasetIndex].data[context.dataIndex];
+                            return `${label}: ${value} SGD`;
+                        }
+                    }
+                }
+            }
+        };
+
+        const priceChart = new Chart(ctx, config);
+    </script>
 </body>
 </html>
