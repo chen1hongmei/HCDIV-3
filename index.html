@@ -1,83 +1,152 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <title>HCDIV Assignment 2</title>
-    <style type="text/css">
-        body {     
-            text-align: center;
-            background-color: #87CEFA;
-            margin: 0;
-            padding: 20px;
-        }
-
-        .container {
-            display: flex;
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HCDIV Assignment 3 </title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- 引入Chart.js -->
+    <style>
+        body {
+            background-color: blanchedalmond;
+            display: flexbox;
             justify-content: center;
             align-items: center;
-            margin-bottom: 20px; /* Add space between containers */
+            height: 100vh;
+            margin: 200;
+        }    
+        div{
+            position: fixed;
+            left: 190px;
         }
-
-        .image-left, .image-right {
-            width: 600px;
-            height: 300px;
-            margin: 0 10px; /* Add space between images */
+        .chart-container {
+            width: 80%;
+            height: 80%;
         }
-
-        .arrow-right {
-            width: 50px; /* Adjust the size of the arrow as needed */
-            height: auto;
-        }
-
-        img {
-            display: block; /* Remove extra space below images */
-        }
+        h2,h4{color: blue;text-align: center;}
+        p{text-indent: 8px;}
     </style>
 </head>
 <body>
-    <h1>HCDIV Assignment 2 Critique of visualizations</h1>
-    <h5>Chen hongmei(The page is being upgraded)</h5>
-    <div class="container">
-        <img class="image-left" src="IMG5.png" alt="image of case 1" title="image of case 1"/>
-        <img class="arrow-right" src="arrow.jfif" alt="Right Arrow"/>
-        <img class="image-right" src="IMG6.png" alt="image of case 2" title="image of case 2"/>
+   
+        <h2>Changes in 2-room rents in 4 towns this year</h2>  
+        <h4>Created by Chen Hongmei</h4>
+        <p>Suppose I need to rent a two-bedroom apartment. Based on the real-time rental data downloaded from the HDB website, unnecessary data is deleted. Visualize how rental prices have changed in five regions over the past ten months.</p>
+        <p>Two key points:The first is the selection of data. The data downloaded from HDB is very large and a lot of information must be deleted. The second is what type of channel should be chosen to present the data so that the information can be fully reflected. To simplify the problem, I kept five areas and chose a stacked line chart. I would like to take this opportunity to ask you whether other better channels can better reflect more data information.</p>
+    <div class="chart-container">
+        <canvas id="priceChart"></canvas>
     </div>
-    <h3>Case 1 Analysis</h3>
-    <table style="margin-left: auto; margin-right: auto;">
-        <tr>
-         <td><H2>issue</H2> </td>
-         <td><h2>Suggestions for improvement</h2></td>
-        </tr>
-        <tr>
-          <td>Using images as backgrounds can make charts look unclear</td>
-          <td>Replace pictures with solid colors</td>
-        </tr>
-        <tr>
-          <td>The base starts from 37%, causing the gap between the two data to look widening.</td>
-          <td>The base should start from 0 to reflect a more realistic gap.</td>
-        </tr>
-    </table>
-</br/>
-</br>
-    <div class="container">
-        <img class="image-left" src="IMG4.jpg" alt="image of case 2" title="image of case 2"/>
-        <img class="arrow-right" src="arrow.jfif" alt="Right Arrow"/>
-        <img class="image-right" src="IMG3.jpg" alt="image of case 2" title="image of case 2"/>
-    </div>
-    <h3>Case 2 Analysis</h3>
-    <table style="margin-left: auto; margin-right: auto;">
-        <tr>
-          <td><H2>issue</H2> </td>
-          <td><h2>Suggestions for improvement</h2></td>
-        </tr>
-        <tr>
-          <td>The base starts from 37%, causing the gap between the two data to look widening.</td>
-          <td>The base should start from 0 to reflect a more realistic gap.</td>
-        </tr>
-        <tr>
-          <td>The different styles of each channel can easily cause people to misunderstand the size of the data value.</td>
-          <td>Use concise channels to display data more clearly</td>
-        </tr>
-    </table>
+    <script>
+        const ctx = document.getElementById('priceChart').getContext('2d');
+
+        // 月份数据
+        const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'];
+
+        // 各地区的月租金数据
+        const data = {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'QUEENSTOWN',
+                    data: [2900, 1000, 2100, 1200, 1800, 2750, 2700, 2750, 2400, 2200],
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                },
+                {
+                    label: 'JURONG WEST',
+                    data: [2200, 1400, 2700, 1600, 1200, 2400, 2700, 2200, 2500, 1800],
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                },
+                {
+                    label: 'BEDOK',
+                    data: [1700, 1850, 2100, 2200, 1700, 1850, 2000, 2400, 2300, 2600],
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                },
+                {
+                    label: 'WOODLANDS',
+                    data: [1300, 2480, 1300, 2200, 1200, 1900, 2100, 2300, 2200, 2400],
+                    borderColor: 'rgba(153, 102, 255, 1)',
+                    backgroundColor: 'rgba(153, 102, 255, 0.5)',
+                }
+            ]
+        };
+
+        const config = {
+            type: 'line',
+            data: data,
+            options: {
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    datalabels: {
+                        formatter: (value, ctx) => {
+                            let dataset = ctx.dataset;
+                            let index = dataset.data.indexOf(value);
+                            return dataset.label + ': ' + value;
+                        },
+                        color: '#000',
+                        font: {
+                            weight: 'bold'
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Monthly Rent (SGD)'
+                        },
+                        beginAtZero: false, // 不从零开始，根据数据范围自动调整
+                        suggestedMin: Math.min(...data.datasets.map(ds => Math.min(...ds.data))) - 500, // 设置y轴的最小值
+                        suggestedMax: Math.max(...data.datasets.map(ds => Math.max(...ds.data))) + 500, // 设置y轴的最大值
+                        grid: {
+                            drawBorder: false,
+                            drawTicks: false,
+                            borderDash: [3, 3],
+                            color: 'rgba(0, 0, 0, 0.2)'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Month'
+                        },
+                        grid: {
+                            drawBorder: false,
+                            drawTicks: false,
+                            borderDash: [3, 3],
+                            color: 'rgba(0, 0, 0, 0.2)'
+                        }
+                    }
+                },
+                animation: {
+                    duration: 2000,
+                    easing: 'easeOutBounce'
+                },
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                hover: {
+                    mode: 'index',
+                    intersect: true
+                },
+                tooltips: {
+                    intersect: true,
+                    callbacks: {
+                        label: function(context) {
+                            const { label, datasetIndex, parsed } = context;
+                            const value = parsed[datasetIndex].data[context.dataIndex];
+                            return `${label}: ${value} SGD`;
+                        }
+                    }
+                }
+            }
+        };
+
+        const priceChart = new Chart(ctx, config);
+    </script>
 </body>
 </html>
